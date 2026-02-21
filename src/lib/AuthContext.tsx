@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { storeAuth, getStoredAuth, clearAuth, StoredUser } from "./storage";
 
-const API_BASE = "https://kirastreams.vercel.app";
+const API_BASE = "https://kirastreamsv2.vercel.app/api/auth";
 
 interface AuthContextValue {
   user: StoredUser | null;
@@ -18,8 +18,8 @@ const AuthContext = createContext<AuthContextValue>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser]   = useState<StoredUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user,    setUser]    = useState<StoredUser | null>(null);
+  const [token,   setToken]   = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,29 +30,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function login(email: string, password: string) {
-    const res = await fetch(`${API_BASE}/api/auth/login`, {
+    const res = await fetch(`${API_BASE}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Login failed");
-    await storeAuth(data.token, data.user);
+    if (!res.ok) throw new Error(data?.error ?? "Login failed.");
+    const storedUser: StoredUser = {
+      id: String(data.user.id),
+      email: data.user.email,
+      name: data.user.name ?? undefined,
+      isAdmin: data.user.role === "admin",
+    };
+    await storeAuth(data.token, storedUser);
     setToken(data.token);
-    setUser(data.user);
+    setUser(storedUser);
   }
 
   async function signup(email: string, password: string, name?: string) {
-    const res = await fetch(`${API_BASE}/api/auth/register`, {
+    const res = await fetch(`${API_BASE}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({
+        email: email.trim().toLowerCase(),
+        password,
+        username: name?.trim() || email.split("@")[0],
+      }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Sign up failed");
-    await storeAuth(data.token, data.user);
+    if (!res.ok) throw new Error(data?.error ?? "Sign up failed.");
+    const storedUser: StoredUser = {
+      id: String(data.user.id),
+      email: data.user.email,
+      name: data.user.name ?? undefined,
+      isAdmin: data.user.role === "admin",
+    };
+    await storeAuth(data.token, storedUser);
     setToken(data.token);
-    setUser(data.user);
+    setUser(storedUser);
   }
 
   async function logout() {

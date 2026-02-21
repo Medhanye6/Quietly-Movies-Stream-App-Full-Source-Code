@@ -160,38 +160,22 @@ export default function WatchScreen() {
             </View>
           )}
           <WebView
-            key={embedUrl}
-            source={{ uri: embedUrl }}
-            style={[styles.player, playerLoading && { opacity: 0 }]}
-            allowsFullscreenVideo
-            allowsInlineMediaPlayback
-            mediaPlaybackRequiresUserAction={false}
-            javaScriptEnabled
-            domStorageEnabled
-            originWhitelist={[
-              "https://www.2embed.cc",
-              "https://vidlink.pro",
-              "https://vidsrc.cc",
-              "https://vidsrc.icu",
-            ]}
-            onShouldStartLoadWithRequest={(request) => {
-              const allowed = [
-                "2embed.cc",
-                "vidlink.pro",
-                "vidsrc.cc",
-                "vidsrc.icu",
-              ];
-              try {
-                const host = new URL(request.url).hostname;
-                return allowed.some((h) => host === h || host.endsWith(`.${h}`));
-              } catch {
-                return false;
-              }
-            }}
-            onLoadStart={() => setPlayerLoading(true)}
-            onLoadEnd={()  => setPlayerLoading(false)}
-            userAgent="Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-          />
+              key={embedUrl}
+              source={{ uri: embedUrl }}
+              style={[styles.player, playerLoading && { opacity: 0 }]}
+              allowsFullscreenVideo
+              allowsInlineMediaPlayback
+              mediaPlaybackRequiresUserAction={false}
+              javaScriptEnabled
+              domStorageEnabled
+              originWhitelist={["*"]}
+              mixedContentMode="always"
+              thirdPartyCookiesEnabled
+              onLoadStart={() => setPlayerLoading(true)}
+              onLoadEnd={()  => setPlayerLoading(false)}
+              onError={() => setPlayerLoading(false)}
+              userAgent="Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+            />
         </View>
 
         {/* ── Back + Bookmark ───────────────────────────────── */}

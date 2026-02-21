@@ -123,12 +123,12 @@ export function getEmbedUrl(
   episode?: number
 ): string {
   if (type === "movie") {
-    if (player === "kira")  return `https://www.2embed.cc/embed/${id}`;
-    if (player === "prime") return `https://vidlink.pro/movie/${id}?player=jw`;
-    if (player === "flash") return `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true`;
-    if (player === "swift") return `https://vidsrc.icu/embed/movie/${id}?autoPlay=true`;
-  } else {
-    if (player === "kira")  return `https://www.2embed.cc/embedtv/${id}&s=${season}&e=${episode}`;
+    if (player === "kira")  return `https://vidrock.net/movie/${id}?autoplay=true&download=true`;
+      if (player === "prime") return `https://vidlink.pro/movie/${id}?player=jw`;
+      if (player === "flash") return `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true`;
+      if (player === "swift") return `https://vidsrc.icu/embed/movie/${id}?autoPlay=true`;
+    } else {
+        if (player === "kira")  return `https://vidrock.net/tv/${id}/${season}/${episode}?autoplay=true&autonext=true&download=true`;
     if (player === "prime") return `https://vidlink.pro/tv/${id}/${season}/${episode}?player=jw&autoplay=true`;
     if (player === "flash") return `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=true`;
     if (player === "swift") return `https://vidsrc.icu/embed/tv/${id}/${season}/${episode}?autoPlay=true`;
