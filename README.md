@@ -46,7 +46,6 @@ A free streaming app for movies, TV shows, and anime — built with React Native
 - **expo-secure-store** — encrypted token storage
 - **react-native-webview** — embedded video players
 - **TMDB API** — content metadata
-- 
 ---
 
 
