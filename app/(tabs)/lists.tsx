@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getBookmarks, getWatchHistory, removeBookmark, Bookmark, WatchHistoryItem } from "@/lib/storage";
 import { getImageUrl } from "@/lib/tmdb";
 import { Colors } from "@/lib/colors";
+import { useTranslation } from "@/lib/i18n";
 
 const PT = Platform.OS === "android" ? RNStatusBar.currentHeight ?? 0 : 0;
 type Tab = "bookmarks" | "history";
@@ -15,6 +16,7 @@ type Tab = "bookmarks" | "history";
 function BookmarkCard({ item, onPress, onRemove }: {
   item: Bookmark; onPress: () => void; onRemove: () => void;
 }) {
+  const { t } = useTranslation();
   const [imgErr, setImgErr] = useState(false);
   const imgUri = getImageUrl(item.poster_path, "w185");
   return (
@@ -29,7 +31,9 @@ function BookmarkCard({ item, onPress, onRemove }: {
       <View style={styles.rowInfo}>
         <Text style={styles.rowTitle} numberOfLines={2}>{item.title}</Text>
         <View style={styles.typePill}>
-          <Text style={styles.typeTxt}>{item.type.toUpperCase()}</Text>
+          <Text style={styles.typeTxt}>
+            {(item.type === "movie" ? t('movies') : item.type === "tv" ? t('tvShows') : (item.type === "anime" ? t('anime') : t('manga'))).toUpperCase()}
+          </Text>
         </View>
         <Text style={styles.dateTxt}>{new Date(item.addedAt).toLocaleDateString()}</Text>
       </View>
@@ -41,6 +45,7 @@ function BookmarkCard({ item, onPress, onRemove }: {
 }
 
 function HistoryCard({ item, onPress }: { item: WatchHistoryItem; onPress: () => void }) {
+  const { t } = useTranslation();
   const [imgErr, setImgErr] = useState(false);
   const imgUri = getImageUrl(item.poster_path, "w185");
   return (
@@ -55,7 +60,9 @@ function HistoryCard({ item, onPress }: { item: WatchHistoryItem; onPress: () =>
       <View style={styles.rowInfo}>
         <Text style={styles.rowTitle} numberOfLines={2}>{item.title}</Text>
         <View style={styles.typePill}>
-          <Text style={styles.typeTxt}>{item.type.toUpperCase()}</Text>
+          <Text style={styles.typeTxt}>
+            {(item.type === "movie" ? t('movies') : item.type === "tv" ? t('tvShows') : (item.type === "anime" ? t('anime') : t('manga'))).toUpperCase()}
+          </Text>
         </View>
         {item.season && item.episode && (
           <Text style={styles.epTxt}>S{item.season} E{item.episode}</Text>
@@ -69,6 +76,7 @@ function HistoryCard({ item, onPress }: { item: WatchHistoryItem; onPress: () =>
 
 export default function ListsScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("bookmarks");
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [history,   setHistory]   = useState<WatchHistoryItem[]>([]);
@@ -85,14 +93,18 @@ export default function ListsScreen() {
     setBookmarks((prev) => prev.filter((b) => !(b.id === item.id && b.type === item.type)));
   }
 
-  function navigateTo(id: number, type: string) {
-    router.push(`/watch/${type}/${id}` as any);
+  function navigateTo(id: number | string, type: string) {
+    if (type === "manga") {
+      router.push(`/manga/${id}` as any);
+    } else {
+      router.push(`/watch/${type}/${id}` as any);
+    }
   }
 
   return (
     <SafeAreaView style={[styles.safe, { paddingTop: PT }]}>
       <View style={styles.header}>
-        <Text style={styles.heading}>My Lists</Text>
+        <Text style={styles.heading}>{t('myList')}</Text>
       </View>
 
       {/* Tab toggle */}
@@ -102,14 +114,14 @@ export default function ListsScreen() {
           onPress={() => setTab("bookmarks")}
         >
           <Ionicons name={tab === "bookmarks" ? "bookmark" : "bookmark-outline"} size={16} color={tab === "bookmarks" ? "#fff" : Colors.textMuted} />
-          <Text style={[styles.tabBtnTxt, tab === "bookmarks" && styles.tabBtnTxtActive]}>Bookmarks</Text>
+          <Text style={[styles.tabBtnTxt, tab === "bookmarks" && styles.tabBtnTxtActive]}>{t('bookmarks')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tabBtn, tab === "history" && styles.tabBtnActive]}
           onPress={() => setTab("history")}
         >
           <Ionicons name="time-outline" size={16} color={tab === "history" ? "#fff" : Colors.textMuted} />
-          <Text style={[styles.tabBtnTxt, tab === "history" && styles.tabBtnTxtActive]}>History</Text>
+          <Text style={[styles.tabBtnTxt, tab === "history" && styles.tabBtnTxtActive]}>{t('history')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -117,8 +129,8 @@ export default function ListsScreen() {
         bookmarks.length === 0 ? (
           <View style={styles.empty}>
             <Ionicons name="bookmark-outline" size={54} color={Colors.textDim} />
-            <Text style={styles.emptyTxt}>No bookmarks yet</Text>
-            <Text style={styles.emptySubTxt}>Bookmark movies & shows to find them here</Text>
+            <Text style={styles.emptyTxt}>{t('noBookmarks')}</Text>
+            <Text style={styles.emptySubTxt}>{t('bookmarkSub')}</Text>
           </View>
         ) : (
           <FlatList
@@ -140,8 +152,8 @@ export default function ListsScreen() {
         history.length === 0 ? (
           <View style={styles.empty}>
             <Ionicons name="time-outline" size={54} color={Colors.textDim} />
-            <Text style={styles.emptyTxt}>No watch history</Text>
-            <Text style={styles.emptySubTxt}>Start watching to build your history</Text>
+            <Text style={styles.emptyTxt}>{t('noHistory')}</Text>
+            <Text style={styles.emptySubTxt}>{t('historySub')}</Text>
           </View>
         ) : (
           <FlatList

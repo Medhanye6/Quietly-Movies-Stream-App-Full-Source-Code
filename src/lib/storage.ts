@@ -4,8 +4,8 @@ import * as SecureStore from "expo-secure-store";
 // ── Bookmarks ──────────────────────────────────────────────────────────────
 
 export interface Bookmark {
-  id: number;
-  type: "movie" | "tv" | "anime";
+  id: number | string;
+  type: "movie" | "tv" | "anime" | "manga";
   title: string;
   poster_path: string | null;
   addedAt: number;
@@ -27,13 +27,13 @@ export async function addBookmark(item: Omit<Bookmark, "addedAt">): Promise<void
   await AsyncStorage.setItem(BOOKMARKS_KEY, JSON.stringify(list));
 }
 
-export async function removeBookmark(id: number, type: string): Promise<void> {
+export async function removeBookmark(id: number | string, type: string): Promise<void> {
   const list = await getBookmarks();
   const filtered = list.filter((b) => !(b.id === id && b.type === type));
   await AsyncStorage.setItem(BOOKMARKS_KEY, JSON.stringify(filtered));
 }
 
-export async function isBookmarked(id: number, type: string): Promise<boolean> {
+export async function isBookmarked(id: number | string, type: string): Promise<boolean> {
   const list = await getBookmarks();
   return list.some((b) => b.id === id && b.type === type);
 }
@@ -41,8 +41,8 @@ export async function isBookmarked(id: number, type: string): Promise<boolean> {
 // ── Watch History ──────────────────────────────────────────────────────────
 
 export interface WatchHistoryItem {
-  id: number;
-  type: "movie" | "tv" | "anime";
+  id: number | string;
+  type: "movie" | "tv" | "anime" | "manga";
   title: string;
   poster_path: string | null;
   season?: number;

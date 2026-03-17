@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
-  SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView,
+  SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView, Image
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -40,7 +40,10 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           <View style={styles.logoWrap}>
-            <Text style={styles.logoTxt}>KiraStreams</Text>
+            <View style={styles.loginLogoContainer}>
+              <Image source={require("../../assets/logo.png")} style={styles.loginLogo} resizeMode="contain" />
+            </View>
+            <Text style={styles.logoTxt}>Quietly Stream</Text>
           </View>
 
           <Text style={styles.heading}>Welcome back</Text>
@@ -106,6 +109,14 @@ const styles = StyleSheet.create({
   scroll:     { flexGrow: 1, padding: 24, paddingTop: 16 },
   closeBtn:   { alignSelf: "flex-end", padding: 6, marginBottom: 8 },
   logoWrap:   { alignItems: "center", marginBottom: 28 },
+  loginLogoContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  loginLogo:  { width: 60, height: 60 },
   logoTxt:    { fontSize: 28, fontWeight: "900", color: Colors.primary, letterSpacing: -0.5 },
   heading:    { color: Colors.text, fontSize: 26, fontWeight: "800", marginBottom: 6 },
   subheading: { color: Colors.textMuted, fontSize: 15, marginBottom: 24 },

@@ -18,6 +18,7 @@ import {
   addBookmark, removeBookmark, isBookmarked,
   addToHistory,
 } from "@/lib/storage";
+import { useTranslation } from "@/lib/i18n";
 
 const { width: SW } = Dimensions.get("window");
 const PLAYER_H = SW * (9 / 16);
@@ -66,8 +67,9 @@ export default function WatchScreen() {
   const [episode, setEpisode] = useState(1);
   const [player,  setPlayer]  = useState<PlayerKey>("kira");
   const [bookmarked, setBookmarked] = useState(false);
+  const { t } = useTranslation();
 
-  const title = movieDetail?.title || tvDetail?.name || "Loading…";
+  const title = movieDetail?.title || tvDetail?.name || t('loading');
 
   // Load details
   useEffect(() => {
@@ -135,6 +137,7 @@ export default function WatchScreen() {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={{ color: Colors.textMuted, marginTop: 10 }}>{t('loading')}</Text>
       </View>
     );
   }
@@ -156,7 +159,7 @@ export default function WatchScreen() {
           {playerLoading && (
             <View style={styles.playerLoader}>
               <ActivityIndicator size="large" color={Colors.primary} />
-              <Text style={styles.playerLoadTxt}>Loading player…</Text>
+              <Text style={styles.playerLoadTxt}>{t('loadingPlayer')}</Text>
             </View>
           )}
           <WebView
@@ -182,7 +185,7 @@ export default function WatchScreen() {
         <View style={styles.actionRow}>
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={20} color={Colors.text} />
-            <Text style={styles.backTxt}>Back</Text>
+            <Text style={styles.backTxt}>{t('back')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.bookmarkBtn} onPress={toggleBookmark}>
             <Ionicons
@@ -215,19 +218,21 @@ export default function WatchScreen() {
               {detail?.vote_average && detail.vote_average > 0 ? (
                 <View style={styles.ratingRow}>
                   <Ionicons name="star" size={14} color={Colors.star} />
-                  <Text style={styles.ratingTxt}>{detail.vote_average.toFixed(1)}</Text>
+                  <Text style={styles.ratingTxt}>{detail.vote_average.toFixed(1)} {t('rating')}</Text>
                 </View>
               ) : null}
               {movieDetail?.runtime ? (
                 <View style={styles.infoRow}>
                   <Ionicons name="time-outline" size={13} color={Colors.textMuted} />
-                  <Text style={styles.infoTxt}>{movieDetail.runtime} min</Text>
+                  <Text style={styles.infoTxt}>{movieDetail.runtime} {t('minutes')}</Text>
                 </View>
               ) : null}
               {tvDetail?.number_of_seasons ? (
                 <View style={styles.infoRow}>
                   <Ionicons name="tv-outline" size={13} color={Colors.textMuted} />
-                  <Text style={styles.infoTxt}>{tvDetail.number_of_seasons} season{tvDetail.number_of_seasons > 1 ? "s" : ""}</Text>
+                  <Text style={styles.infoTxt}>
+                    {tvDetail.number_of_seasons} {tvDetail.number_of_seasons > 1 ? t('seasons') : t('season')}
+                  </Text>
                 </View>
               ) : null}
               {genres.length > 0 && (
@@ -249,7 +254,7 @@ export default function WatchScreen() {
         {/* ── Season/Episode Selector (TV only) ─────────────── */}
         {mediaType === "tv" && seasons.length > 0 && (
           <View style={styles.episodeSection}>
-            <Text style={styles.sectionTitle}>Episodes</Text>
+            <Text style={styles.sectionTitle}>{t('episodes')}</Text>
 
             {/* Season picker */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }} style={{ marginBottom: 12 }}>
@@ -307,7 +312,7 @@ export default function WatchScreen() {
         {/* ── Cast ─────────────────────────────────────────── */}
         {cast.length > 0 && (
           <View style={styles.castSection}>
-            <Text style={styles.sectionTitle}>Cast</Text>
+            <Text style={styles.sectionTitle}>{t('cast')}</Text>
             <FlatList
               horizontal
               data={cast}
@@ -334,7 +339,7 @@ export default function WatchScreen() {
         {/* ── Recommendations ───────────────────────────────── */}
         {recs.length > 0 && (
           <View style={styles.recsSection}>
-            <Text style={styles.sectionTitle}>You May Also Like</Text>
+            <Text style={styles.sectionTitle}>{t('similar')}</Text>
             <FlatList
               horizontal
               data={recs}

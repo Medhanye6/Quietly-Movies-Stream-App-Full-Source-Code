@@ -1,23 +1,23 @@
 {
   "expo": {
-    "name": "KiraStreams",
-    "slug": "kirastreams",
+    "name": "Quietly Stream",
+    "slug": "quietly-stream",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
-    "scheme": "kirastreams",
+    "scheme": "quietly-stream",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kirastreams.app"
+      "bundleIdentifier": "com.medhanyestream.quietly"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f0f13"
       },
-      "package": "com.kirastreams.app"
+      "package": "com.medhanyestream.quietly"
     },
     "web": {
       "bundler": "metro",
@@ -42,8 +42,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "0705ae20-a6f7-4221-bb98-dbbe1820abba"
+        "projectId": "42e75967-4273-42b2-8b0b-6af47576a221"
       }
-    }
+    },
+    "owner": "medhanye7"
   }
 }
