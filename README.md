@@ -12,6 +12,17 @@ Quietly Stream is a premium, all-in-one entertainment suite for Android, designe
 - **Detailed Metadata**: Comprehensive info including ratings, overviews, cast lists, and trailers (TMDB & AniList).
 - **Manga Reader**: Integrated high-quality manga explorer and reader (MangaDex).
 
+### ⚽ Live Football Integration
+- **Global Coverage**: Real-time access to UCL, Premier League, La Liga, and more.
+- **Smart Throttling**: Efficient API handling to respect rate limits while maintaining speed.
+- **Priority Sorting**: Major leagues are automatically pinned to the top for quick access.
+- **Dynamic Countdowns**: Real-time "Starts in Xh" counters for all upcoming matches.
+
+### 🌐 Centralized Global Cache
+- **Firebase Bridge**: Integrated Firebase Realtime Database to sync matches globally.
+- **API Optimization**: One user fetches for all users, protecting the 50 req/day limit and saving costs.
+- **Offline-First Persistence**: Instant loading from local JSON storage when internet is unavailable.
+
 ### 📺 Advanced Player
 - **Multiple Servers**: Choose from Kira, Prime, Flash, and Swift servers for the best streaming speed.
 - **Resume Playback**: Pick up exactly where you left off.

@@ -51,6 +51,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="football"
+        options={{
+          title: "Live",
+          tabBarIcon: ({ focused }) => <TabIcon name={focused ? "football" : "football-outline"} focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
         name="search"
         options={{
           title: "Search",
@@ -62,13 +69,6 @@ export default function TabLayout() {
         options={{
           title: "My Lists",
           tabBarIcon: ({ focused }) => <TabIcon name={focused ? "bookmark" : "bookmark-outline"} focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="popular"
-        options={{
-          title: "Popular",
-          tabBarIcon: ({ focused }) => <TabIcon name={focused ? "star" : "star-outline"} focused={focused} />,
         }}
       />
       <Tabs.Screen
