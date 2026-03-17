@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
 import {
   View, Text, StyleSheet, FlatList, Image,
-  Dimensions, ActivityIndicator, TouchableOpacity,
-  SafeAreaView, Platform
+  ActivityIndicator, Platform
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { getChapterImages } from "@/lib/mangadex";
 import { Colors } from "@/lib/colors";
+import { useResponsive } from "@/hooks/useResponsive";
+import { scale, sFont } from "@/lib/scaling";
+import { Focusable } from "@/components/Focusable";
 
-const { width: SW } = Dimensions.get("window");
-
-function MangaPage({ uri }: { uri: string }) {
-  const [aspectRatio, setAspectRatio] = useState(0.7); // Default
+function MangaPage({ uri, screenWidth }: { uri: string; screenWidth: number }) {
+  const [aspectRatio, setAspectRatio] = useState(0.7); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ function MangaPage({ uri }: { uri: string }) {
   }, [uri]);
 
   return (
-    <View style={[styles.pageContainer, { height: SW * aspectRatio }]}>
+    <View style={[styles.pageContainer, { width: screenWidth, height: screenWidth * aspectRatio }]}>
       {loading && (
         <View style={styles.pageLoader}>
           <ActivityIndicator color={Colors.primary} />
@@ -41,6 +42,8 @@ function MangaPage({ uri }: { uri: string }) {
 export default function MangaReaderScreen() {
   const { chapterId } = useLocalSearchParams();
   const router = useRouter();
+  const { isPhone, isTV, width: SW } = useResponsive();
+  
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [showControls, setShowControls] = useState(true);
@@ -64,42 +67,49 @@ export default function MangaReaderScreen() {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loaderTxt}>Loading pages...</Text>
+        <Text style={[styles.loaderTxt, { fontSize: sFont(14) }]}>Loading pages...</Text>
       </View>
     );
   }
+
+  const isDesktop = !isPhone;
+  const readerWidth = isDesktop ? Math.min(SW, 1000) : SW;
 
   return (
     <View style={styles.container}>
       {/* Top Header - Overlay */}
       {showControls && (
-        <SafeAreaView style={styles.headerOverlay}>
+        <SafeAreaView style={styles.headerOverlay} edges={isTV ? ['top', 'left', 'right'] : ['top']}>
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <Focusable style={styles.backBtn} onPress={() => router.back()}>
               <Ionicons name="chevron-back" size={24} color="#fff" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle} numberOfLines={1}>Reader</Text>
+            </Focusable>
+            <Text style={[styles.headerTitle, { fontSize: sFont(18) }]} numberOfLines={1}>Reader</Text>
           </View>
         </SafeAreaView>
       )}
 
-      <FlatList
-        data={images}
-        keyExtractor={(item, index) => `${chapterId}-${index}`}
-        renderItem={({ item }) => <MangaPage uri={item} />}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-        onScrollBeginDrag={() => setShowControls(false)}
-        ListEmptyComponent={
-          <View style={styles.center}>
-            <Text style={{ color: '#fff' }}>Failed to load pages.</Text>
-          </View>
-        }
-      />
+      <View style={styles.scrollWrapper}>
+        <FlatList
+          data={images}
+          keyExtractor={(item, index) => `${chapterId}-${index}`}
+          renderItem={({ item }) => <MangaPage uri={item} screenWidth={readerWidth} />}
+          contentContainerStyle={[styles.content, isDesktop && { alignItems: 'center' }]}
+          showsVerticalScrollIndicator={false}
+          onScrollBeginDrag={() => setShowControls(false)}
+          ListEmptyComponent={
+            <View style={styles.center}>
+              <Text style={{ color: '#fff', fontSize: sFont(14) }}>Failed to load pages.</Text>
+            </View>
+          }
+        />
+      </View>
       
-      {/* Bottom Hint */}
+      {/* Tap Surface to Toggle Controls */}
       {!showControls && (
-        <TouchableOpacity style={styles.tapSurface} onPress={toggleControls} activeOpacity={1} />
+        <Focusable style={styles.tapSurface} onPress={toggleControls}>
+          <View style={{ flex: 1 }} />
+        </Focusable>
       )}
     </View>
   );
@@ -108,13 +118,14 @@ export default function MangaReaderScreen() {
 const styles = StyleSheet.create({
   container:      { flex: 1, backgroundColor: "#000" },
   loader:         { flex: 1, backgroundColor: "#000", justifyContent: "center", alignItems: "center", gap: 12 },
-  loaderTxt:      { color: Colors.textMuted, fontSize: 14 },
-  headerOverlay:  { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, backgroundColor: 'rgba(0,0,0,0.7)' },
-  header:         { flexDirection: 'row', alignItems: 'center', padding: 16, paddingTop: Platform.OS === 'android' ? 40 : 16 },
-  backBtn:        { marginRight: 16 },
-  headerTitle:    { color: '#fff', fontSize: 18, fontWeight: '700', flex: 1 },
+  loaderTxt:      { color: Colors.textMuted },
+  headerOverlay:  { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, backgroundColor: 'rgba(0,0,0,0.8)' },
+  header:         { flexDirection: 'row', alignItems: 'center', padding: 16 },
+  backBtn:        { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.1)' },
+  headerTitle:    { color: '#fff', fontWeight: '700', flex: 1, marginLeft: 16 },
+  scrollWrapper:  { flex: 1, alignItems: 'center' },
   content:        { paddingBottom: 100 },
-  pageContainer:  { width: SW, backgroundColor: '#000', justifyContent: 'center' },
+  pageContainer:  { backgroundColor: '#000', justifyContent: 'center' },
   pageImg:        { width: '100%', height: '100%' },
   pageLoader:     { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
   center:         { flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 100 },

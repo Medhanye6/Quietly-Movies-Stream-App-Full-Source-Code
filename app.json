@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Quietly Stream",
-    "slug": "quietly-stream",
+    "slug": "quietly-stream-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -40,12 +40,14 @@
       "typedRoutes": true
     },
     "extra": {
-      "router": {},
+      "router": {
+        "origin": false
+      },
       "eas": {
-        "projectId": "42e75967-4273-42b2-8b0b-6af47576a221"
+        "projectId": "e17a7049-8eea-413f-b416-3140bbc283cc"
       }
     },
-    "owner": "medhanye7",
+    "owner": "nahom7",
     "githubUrl": "https://github.com/medhanye7/quietly-stream"
   }
 }

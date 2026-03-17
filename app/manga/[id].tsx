@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, Image,
-  Dimensions, ActivityIndicator, TouchableOpacity,
-  SafeAreaView, Platform, StatusBar as RNStatusBar, Linking
+  ActivityIndicator, Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -12,12 +12,16 @@ import { searchMangaDex, getMangaChapters, MangaDexChapter } from "@/lib/mangade
 import { Colors } from "@/lib/colors";
 import { addBookmark, removeBookmark, isBookmarked } from "@/lib/storage";
 import { useToast } from "@/lib/ToastContext";
-
-const { width: SW } = Dimensions.get("window");
+import { useResponsive } from "@/hooks/useResponsive";
+import { scale, sFont } from "@/lib/scaling";
+import { Focusable } from "@/components/Focusable";
 
 export default function MangaDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const { isPhone, isTV, width: SW, height: SH } = useResponsive();
+  const { showToast } = useToast();
+
   const [manga, setManga] = useState<AniListManga | null>(null);
   const [chapters, setChapters] = useState<MangaDexChapter[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,10 +33,8 @@ export default function MangaDetailsScreen() {
       try {
         const data = await getMangaDetails(Number(id));
         setManga(data);
-        
         setBookmarked(await isBookmarked(String(id), "manga"));
         
-        // Search MangaDex and fetch chapters
         setLoadingChapters(true);
         const title = data.title.english || data.title.romaji;
         const mdId = await searchMangaDex(title);
@@ -73,8 +75,6 @@ export default function MangaDetailsScreen() {
     router.push(`/manga/reader/${chapterId}` as any);
   };
 
-  const { showToast } = useToast();
-
   const toggleBookmark = async () => {
     if (!manga) return;
     if (bookmarked) {
@@ -93,82 +93,95 @@ export default function MangaDetailsScreen() {
     }
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.responsiveWrapper}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-          {/* Poster Header */}
-          <View style={styles.headerHero}>
-          <Image
-            source={{ uri: manga.coverImage.extraLarge }}
-            style={styles.heroImg}
-            resizeMode="cover"
-          />
-          <LinearGradient
-            colors={["transparent", "rgba(0,0,0,0.6)", "#000"]}
-            style={styles.heroOverlay}
-          />
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bookmarkBtn} onPress={toggleBookmark}>
-            <Ionicons 
-              name={bookmarked ? "bookmark" : "bookmark-outline"} 
-              size={24} 
-              color={bookmarked ? Colors.primary : "#fff"} 
-            />
-          </TouchableOpacity>
-        </View>
+  const isDesktop = !isPhone;
 
-        {/* Info */}
-        <View style={styles.content}>
-          <Text style={styles.title}>{manga.title.romaji || manga.title.english}</Text>
-          <View style={styles.metaRow}>
-            <View style={styles.scoreBadge}>
-              <Ionicons name="star" size={12} color={Colors.star} />
-              <Text style={styles.scoreTxt}>{manga.averageScore || "N/A"}</Text>
-            </View>
-            <Text style={styles.metaTxt}>{manga.status} • {manga.chapters || "???"} Chapters</Text>
+  const MainInfo = () => (
+    <View style={styles.content}>
+      <Text style={[styles.title, { fontSize: sFont(28) }]}>{manga.title.romaji || manga.title.english}</Text>
+      <View style={styles.metaRow}>
+        <View style={styles.scoreBadge}>
+          <Ionicons name="star" size={12} color={Colors.star} />
+          <Text style={[styles.scoreTxt, { fontSize: sFont(13) }]}>{manga.averageScore || "N/A"}</Text>
+        </View>
+        <Text style={[styles.metaTxt, { fontSize: sFont(13) }]}>{manga.status} • {manga.chapters || "???"} Chapters</Text>
+      </View>
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.genreList}>
+        {manga.genres.map((g) => (
+          <View key={g} style={styles.genreBadge}>
+            <Text style={[styles.genreTxt, { fontSize: sFont(12) }]}>{g}</Text>
           </View>
+        ))}
+      </ScrollView>
 
-          {/* Genres */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.genreList}>
-            {manga.genres.map((g) => (
-              <View key={g} style={styles.genreBadge}>
-                <Text style={styles.genreTxt}>{g}</Text>
+      <Text style={[styles.sectionTitle, { fontSize: sFont(18) }]}>Overview</Text>
+      <Text style={[styles.description, { fontSize: sFont(15) }]}>{cleanDescription}</Text>
+
+      <Text style={[styles.sectionTitle, { fontSize: sFont(18) }]}>Chapters</Text>
+      {loadingChapters ? (
+        <ActivityIndicator color={Colors.primary} style={{ marginTop: 10 }} />
+      ) : chapters.length > 0 ? (
+        <View style={styles.chapterList}>
+          {chapters.map((ch) => (
+            <Focusable 
+              key={ch.id} 
+              style={styles.chapterRow}
+              onPress={() => handleReadChapter(ch.id)}
+            >
+              <View style={styles.chapterInfo}>
+                <Text style={[styles.chapterNum, { fontSize: sFont(13) }]}>Chapter {ch.chapter}</Text>
+                <Text style={[styles.chapterTitle, { fontSize: sFont(15) }]} numberOfLines={1}>{ch.title}</Text>
               </View>
-            ))}
-          </ScrollView>
-
-          {/* Description */}
-          <Text style={styles.sectionTitle}>Overview</Text>
-          <Text style={styles.description}>{cleanDescription}</Text>
-
-          {/* Chapters Section */}
-          <Text style={styles.sectionTitle}>Chapters</Text>
-          {loadingChapters ? (
-            <ActivityIndicator color={Colors.primary} style={{ marginTop: 10 }} />
-          ) : chapters.length > 0 ? (
-            <View style={styles.chapterList}>
-              {chapters.map((ch) => (
-                <TouchableOpacity 
-                  key={ch.id} 
-                  style={styles.chapterRow}
-                  onPress={() => handleReadChapter(ch.id)}
-                >
-                  <View style={styles.chapterInfo}>
-                    <Text style={styles.chapterNum}>Chapter {ch.chapter}</Text>
-                    <Text style={styles.chapterTitle} numberOfLines={1}>{ch.title}</Text>
-                  </View>
-                  <Ionicons name="play-circle-outline" size={24} color={Colors.primary} />
-                </TouchableOpacity>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.emptyTxt}>No chapters found in English.</Text>
-          )}
+              <Ionicons name="play-circle-outline" size={24} color={Colors.primary} />
+            </Focusable>
+          ))}
         </View>
-        </ScrollView>
+      ) : (
+        <Text style={[styles.emptyTxt, { fontSize: sFont(14) }]}>No chapters found in English.</Text>
+      )}
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container} edges={isTV ? ['top', 'bottom', 'left', 'right'] : ['bottom']}>
+      <View style={styles.responsiveWrapper}>
+        {!isDesktop ? (
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+            <View style={styles.headerHero}>
+              <Image source={{ uri: manga.coverImage.extraLarge }} style={styles.heroImg} resizeMode="cover" />
+              <LinearGradient colors={["transparent", "rgba(0,0,0,0.6)", "#000"]} style={styles.heroOverlay} />
+              <Focusable style={styles.backBtn} onPress={() => router.back()}>
+                <Ionicons name="chevron-back" size={24} color="#fff" />
+              </Focusable>
+              <Focusable style={styles.bookmarkBtn} onPress={toggleBookmark}>
+                <Ionicons name={bookmarked ? "bookmark" : "bookmark-outline"} size={24} color={bookmarked ? Colors.primary : "#fff"} />
+              </Focusable>
+            </View>
+            <MainInfo />
+          </ScrollView>
+        ) : (
+          <View style={styles.desktopLayout}>
+            <View style={styles.leftCol}>
+              <View style={[styles.heroCard, { height: SH * 0.7 }]}>
+                <Image source={{ uri: manga.coverImage.extraLarge }} style={styles.heroImg} resizeMode="cover" />
+                <LinearGradient colors={["transparent", "rgba(0,0,0,0.3)", "rgba(0,0,0,0.8)"]} style={styles.heroOverlay} />
+                <View style={styles.heroActionOverlay}>
+                   <Focusable style={styles.heroActionBtn} onPress={() => router.back()}>
+                     <Ionicons name="chevron-back" size={24} color="#fff" />
+                   </Focusable>
+                   <Focusable style={styles.heroActionBtn} onPress={toggleBookmark}>
+                     <Ionicons name={bookmarked ? "bookmark" : "bookmark-outline"} size={24} color={bookmarked ? Colors.primary : "#fff"} />
+                   </Focusable>
+                </View>
+              </View>
+            </View>
+            <View style={styles.rightCol}>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <MainInfo />
+              </ScrollView>
+            </View>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -177,32 +190,36 @@ export default function MangaDetailsScreen() {
 const styles = StyleSheet.create({
   container:    { flex: 1, backgroundColor: "#000" },
   loader:       { flex: 1, backgroundColor: "#000", justifyContent: "center", alignItems: "center" },
+  responsiveWrapper: { flex: 1, alignSelf: 'center', width: '100%', maxWidth: 1400 },
+  desktopLayout: { flex: 1, flexDirection: 'row', padding: 20, gap: 20 },
+  leftCol:      { flex: 1 },
+  rightCol:     { flex: 1.5, backgroundColor: Colors.card, borderRadius: 24, overflow: 'hidden' },
+
   headerHero:   { width: '100%', height: 450, position: "relative" },
+  heroCard:     { width: '100%', borderRadius: 24, overflow: 'hidden', position: 'relative' },
   heroImg:      { width: "100%", height: "100%" },
   heroOverlay:  { ...StyleSheet.absoluteFillObject },
-  responsiveWrapper: {
-    flex: 1,
-    alignSelf: 'center',
-    width: '100%',
-    maxWidth: 1200,
-  },
+  heroActionOverlay: { position: 'absolute', top: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between' },
+  heroActionBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
+
   backBtn:      { position: 'absolute', top: 40, left: 16, width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center', zIndex: 10 },
   bookmarkBtn:  { position: 'absolute', top: 40, right: 16, width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center', zIndex: 10 },
-  content:      { paddingHorizontal: 20, marginTop: -60 },
-  title:        { color: "#fff", fontSize: 28, fontWeight: "900", marginBottom: 10 },
+  
+  content:      { padding: 20 },
+  title:        { color: "#fff", fontWeight: "900", marginBottom: 10 },
   metaRow:      { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 20 },
-  scoreBadge:   { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "rgba(255,255,255,0.1)", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-  scoreTxt:     { color: Colors.star, fontSize: 13, fontWeight: "700" },
-  metaTxt:      { color: "rgba(255,255,255,0.5)", fontSize: 13, fontWeight: "500" },
-  genreList:    { gap: 8, marginBottom: 24 },
-  genreBadge:   { backgroundColor: Colors.primary + "20", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: Colors.primary + "40" },
-  genreTxt:     { color: Colors.primary, fontSize: 12, fontWeight: "600" },
-  sectionTitle: { color: "#fff", fontSize: 18, fontWeight: "800", marginBottom: 10 },
-  description:  { color: "rgba(255,255,255,0.7)", fontSize: 15, lineHeight: 24, marginBottom: 30 },
+  scoreBadge:   { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "rgba(255,255,255,0.1)", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
+  scoreTxt:     { color: Colors.star, fontWeight: "700" },
+  metaTxt:      { color: "rgba(255,255,255,0.5)", fontWeight: "500" },
+  genreList:    { gap: 8, marginBottom: 24, height: scale(40) },
+  genreBadge:   { backgroundColor: Colors.primary + "20", paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: Colors.primary + "40" },
+  genreTxt:     { color: Colors.primary, fontWeight: "600" },
+  sectionTitle: { color: "#fff", fontWeight: "800", marginBottom: 12, marginTop: 10 },
+  description:  { color: "rgba(255,255,255,0.7)", lineHeight: 24, marginBottom: 30 },
   chapterList:  { gap: 10 },
-  chapterRow:   { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.card, padding: 16, borderRadius: 12, borderWidth: 1, borderColor: Colors.border },
+  chapterRow:   { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardAlt, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: Colors.border },
   chapterInfo:  { flex: 1 },
-  chapterNum:   { color: Colors.primary, fontSize: 13, fontWeight: '700', marginBottom: 2 },
-  chapterTitle: { color: '#fff', fontSize: 15, fontWeight: '600' },
-  emptyTxt:     { color: Colors.textMuted, fontSize: 14, marginTop: 10 },
+  chapterNum:   { color: Colors.primary, fontWeight: '700', marginBottom: 2 },
+  chapterTitle: { color: '#fff', fontWeight: '600' },
+  emptyTxt:     { color: Colors.textMuted, marginTop: 10 },
 });

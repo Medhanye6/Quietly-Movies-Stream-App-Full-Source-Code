@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/lib/colors';
+import { scale, sFont } from '@/lib/scaling';
+import { Focusable } from './Focusable';
 
 export interface Match {
   id: string;
@@ -26,6 +28,7 @@ export interface Match {
 interface MatchCardProps {
   match: Match;
   onPress: (match: Match) => void;
+  style?: any;
 }
 
 const getCountdownText = (timestamp: number) => {
@@ -43,50 +46,51 @@ const getCountdownText = (timestamp: number) => {
   return new Date(timestamp * 1000).toLocaleDateString([], { month: 'short', day: 'numeric' });
 };
 
-export const MatchCard: React.FC<MatchCardProps> = ({ match, onPress }) => {
+export const MatchCard: React.FC<MatchCardProps> = ({ match, onPress, style }) => {
   const isLive = match.status === 'LIVE';
 
   return (
-    <TouchableOpacity
-      style={styles.card}
+    <Focusable
       onPress={() => onPress(match)}
-      activeOpacity={0.8}
+      style={[styles.card, style]}
     >
-      <View style={styles.header}>
-        <Text style={styles.league}>{match.league}</Text>
-        {isLive && (
-          <View style={styles.liveBadge}>
-            <View style={styles.liveDot} />
-            <Text style={styles.liveText}>LIVE</Text>
-          </View>
-        )}
-      </View>
-
-      <View style={styles.teamsContainer}>
-        <View style={styles.team}>
-          <Image source={{ uri: match.homeTeam.logo }} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.teamName} numberOfLines={1}>{match.homeTeam.name}</Text>
-        </View>
-
-        <View style={styles.scoreContainer}>
-          {isLive || match.status === 'FINISHED' ? (
-            <Text style={styles.score}>
-              {match.score?.home} - {match.score?.away}
-            </Text>
-          ) : (
-            <View style={styles.timeContainer}>
-              <Text style={styles.timeLabel}>{getCountdownText(match.timestamp)}</Text>
-              <Text style={styles.timeValue}>{match.time}</Text>
+      <View style={{ padding: scale(16) }}>
+        <View style={styles.header}>
+          <Text style={[styles.league, { fontSize: sFont(12) }]}>{match.league}</Text>
+          {isLive && (
+            <View style={styles.liveBadge}>
+              <View style={styles.liveDot} />
+              <Text style={[styles.liveText, { fontSize: sFont(10) }]}>LIVE</Text>
             </View>
           )}
         </View>
 
-        <View style={styles.team}>
-          <Image source={{ uri: match.awayTeam.logo }} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.teamName} numberOfLines={1}>{match.awayTeam.name}</Text>
+        <View style={styles.teamsContainer}>
+          <View style={styles.team}>
+            <Image source={{ uri: match.homeTeam.logo }} style={styles.logo} resizeMode="contain" />
+            <Text style={[styles.teamName, { fontSize: sFont(14) }]} numberOfLines={1}>{match.homeTeam.name}</Text>
+          </View>
+
+          <View style={styles.scoreContainer}>
+            {isLive || match.status === 'FINISHED' ? (
+              <Text style={[styles.score, { fontSize: sFont(24) }]}>
+                {match.score?.home} - {match.score?.away}
+              </Text>
+            ) : (
+              <View style={styles.timeContainer}>
+                <Text style={[styles.timeLabel, { fontSize: sFont(10) }]}>{getCountdownText(match.timestamp)}</Text>
+                <Text style={[styles.timeValue, { fontSize: sFont(16) }]}>{match.time}</Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.team}>
+            <Image source={{ uri: match.awayTeam.logo }} style={styles.logo} resizeMode="contain" />
+            <Text style={[styles.teamName, { fontSize: sFont(14) }]} numberOfLines={1}>{match.awayTeam.name}</Text>
+          </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Focusable>
   );
 };
 

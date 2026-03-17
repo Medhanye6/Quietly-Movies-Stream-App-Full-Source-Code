@@ -33,14 +33,22 @@ Quietly Stream is a premium, all-in-one entertainment suite for Android, designe
 - **Global Watchlists**: Bookmark your favorite content across all categories.
 - **Watch History**: Detailed tracking of your viewed movies and series progress.
 
+### 📱 Multi-Device Responsiveness
+- **Adaptive Layouts**: Seamlessly switches between Phone (Bottom Tabs), Tablet (Sidebar), and Android TV (Sidebar/Focus-First).
+- **Custom Scaling Engine**: Specialized logic to ensure UI elements and fonts scale perfectly across all screen sizes and densities.
+- **TV Focus Support**: Fully navigable via D-pad with smooth scaling animations and high-visibility focus states for a premium remote-control experience.
+
 ### 🌍 Multi-Language Support
 - Full localized interface in **English**, **Spanish**, and **Arabic** (RTL support).
 
 ## 🛠️ Tech Stack
 - **Framework**: React Native (Expo SDK 52)
 - **Navigation**: Expo Router (File-based routing)
+- **Responsive System**: Custom `useResponsive` hook with device-type detection
+- **Scaling Utilities**: Custom `scaling.ts` for density-independent UI
 - **State & Storage**: React Context, AsyncStorage, SecureStore
 - **API Integrations**: TMDB (Movies/TV), AniList (Anime/Manga), MangaDex (Manga)
+- **FireSync**: Firebase Realtime Database for global match caching
 - **Styling**: Vanilla CSS-in-JS with custom design tokens
 
 ## 🚀 Getting Started

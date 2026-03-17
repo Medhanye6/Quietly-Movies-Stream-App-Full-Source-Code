@@ -1,37 +1,35 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  SafeAreaView, Platform, StatusBar as RNStatusBar,
-  TouchableOpacity, Image, FlatList, Dimensions, ActivityIndicator, RefreshControl, TextInput
+  Platform, StatusBar as RNStatusBar,
+  Image, FlatList, Dimensions, ActivityIndicator, RefreshControl, TextInput
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/lib/colors';
 import { MatchCard } from '@/components/MatchCard';
 import { sportsService, Match } from '@/lib/sportsService';
 import { useTranslation } from '@/lib/i18n';
-
-const { width: SW } = Dimensions.get('window');
+import { useResponsive } from '@/hooks/useResponsive';
+import { scale, sFont } from '@/lib/scaling';
+import { Focusable } from '@/components/Focusable';
 
 export default function FootballScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { isPhone, isTV } = useResponsive();
+  
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeLeague, setActiveLeague] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const PRIORITY_LEAGUES = [
-    'UEFA Champions League',
-    'UEFA Europa League',
-    'Premier League',
-    'La Liga',
-    'Serie A',
-    'Bundesliga',
-    'Ligue 1'
+    'UEFA Champions League', 'UEFA Europa League', 'Premier League',
+    'La Liga', 'Serie A', 'Bundesliga', 'Ligue 1'
   ];
-
-  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchMatches = useCallback(async (force = false) => {
     try {
@@ -55,7 +53,6 @@ export default function FootballScreen() {
     fetchMatches(true);
   }, [fetchMatches]);
 
-
   const filteredMatches = matches.filter(m => {
     const matchesLeague = activeLeague === 'All' || m.league.name === activeLeague;
     const matchesSearch = searchQuery === '' || 
@@ -66,11 +63,9 @@ export default function FootballScreen() {
     return matchesLeague && matchesSearch;
   });
 
-  // Priority Sort: Leagues in PRIORITY_LEAGUES come first
   const sortedMatches = [...filteredMatches].sort((a, b) => {
     const aPriority = PRIORITY_LEAGUES.findIndex(pl => a.league.name.includes(pl));
     const bPriority = PRIORITY_LEAGUES.findIndex(pl => b.league.name.includes(pl));
-    
     if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
     if (aPriority !== -1) return -1;
     if (bPriority !== -1) return 1;
@@ -90,17 +85,6 @@ export default function FootballScreen() {
     return a.localeCompare(b);
   })];
 
-  const renderLeagueItem = ({ item }: { item: string }) => (
-    <TouchableOpacity
-      style={[styles.leagueBtn, activeLeague === item && styles.leagueBtnActive]}
-      onPress={() => setActiveLeague(item)}
-    >
-      <Text style={[styles.leagueBtnTxt, activeLeague === item && styles.leagueBtnTxtActive]}>
-        {item}
-      </Text>
-    </TouchableOpacity>
-  );
-
   const mapToUICard = (m: Match) => ({
     id: m.id,
     homeTeam: m.homeTeam,
@@ -112,122 +96,136 @@ export default function FootballScreen() {
     timestamp: m.timestamp
   });
 
+  const isDesktop = !isPhone;
+
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.header}>
-        <View style={styles.brandContainer}>
-          <View style={styles.logoBox}>
-            <Image source={require("../../assets/logo.png")} style={styles.logo} resizeMode="contain" />
+    <SafeAreaView style={styles.safe} edges={isTV ? ['top', 'bottom', 'left', 'right'] : ['bottom']}>
+      {!isDesktop && (
+        <View style={styles.header}>
+          <View style={styles.brandContainer}>
+            <View style={styles.logoBox}>
+              <Image source={require("../../assets/logo.png")} style={styles.logo} resizeMode="contain" />
+            </View>
+            <Text style={[styles.brandName, { fontSize: sFont(20) }]}>Quietly Live</Text>
           </View>
-          <Text style={styles.brandName}>Quietly Live</Text>
+          <Focusable onPress={onRefresh} style={styles.headerActionBtn}>
+            <Ionicons name="refresh" size={24} color={Colors.primary} />
+          </Focusable>
         </View>
-        <TouchableOpacity onPress={onRefresh} style={styles.headerActionBtn}>
-          <Ionicons name="refresh" size={24} color={Colors.primary} />
-        </TouchableOpacity>
-      </View>
+      )}
 
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={20} color={Colors.textMuted} style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search team or league..."
-            placeholderTextColor={Colors.textMuted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            autoCapitalize="none"
-            clearButtonMode="while-editing"
+      <View style={styles.responsiveWrapper}>
+        <View style={styles.searchContainer}>
+          <View style={[styles.searchBar, { height: scale(50) }]}>
+            <Ionicons name="search-outline" size={20} color={Colors.textMuted} style={styles.searchIcon} />
+            <TextInput
+              style={[styles.searchInput, { fontSize: sFont(15) }]}
+              placeholder="Search team or league..."
+              placeholderTextColor={Colors.textMuted}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoCapitalize="none"
+              clearButtonMode="while-editing"
+            />
+          </View>
+        </View>
+
+        <View style={styles.leaguesContainer}>
+          <FlatList
+            horizontal
+            data={leagues}
+            renderItem={({ item, index }) => (
+              <Focusable
+                style={[styles.leagueBtn, activeLeague === item && styles.leagueBtnActive]}
+                onPress={() => setActiveLeague(item)}
+                autoFocus={index === 0 && Platform.isTV}
+              >
+                <Text style={[styles.leagueBtnTxt, activeLeague === item && styles.leagueBtnTxtActive, { fontSize: sFont(14) }]}>
+                  {item}
+                </Text>
+              </Focusable>
+            )}
+            keyExtractor={item => item}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.leaguesList}
           />
-          {searchQuery.length > 0 && Platform.OS !== 'ios' && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={20} color={Colors.textMuted} />
-            </TouchableOpacity>
-          )}
         </View>
-      </View>
 
-      <View style={styles.leaguesContainer}>
-        <FlatList
-          horizontal
-          data={leagues}
-          renderItem={renderLeagueItem}
-          keyExtractor={item => item}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.leaguesList}
-        />
-      </View>
+        <ScrollView 
+          showsVerticalScrollIndicator={false} 
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: isPhone ? 100 : 40 }]}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
+          }
+        >
+          {loading ? (
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color={Colors.primary} />
+              <Text style={[styles.loaderText, { fontSize: sFont(14) }]}>Searching for live streams...</Text>
+            </View>
+          ) : (
+            <>
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { fontSize: sFont(22) }]}>
+                  {liveMatches.length > 0 ? 'Live Now' : 'No Matches Live'}
+                </Text>
+                <View style={isDesktop ? styles.matchGrid : null}>
+                  {liveMatches.length > 0 ? (
+                    liveMatches.map(match => (
+                      <MatchCard 
+                        key={match.id} 
+                        match={mapToUICard(match)} 
+                        onPress={() => router.push(`/football/match/${match.id}` as any)} 
+                        style={isDesktop ? styles.gridMatchCard : null}
+                      />
+                    ))
+                  ) : (
+                    <View style={styles.emptyCard}>
+                      <Ionicons name="football-outline" size={40} color={Colors.textMuted} />
+                      <Text style={[styles.emptyText, { fontSize: sFont(14) }]}>Check back later for live broadcasts</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
 
-      <ScrollView 
-        showsVerticalScrollIndicator={false} 
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
-        }
-      >
-        {loading ? (
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color={Colors.primary} />
-            <Text style={styles.loaderText}>Searching for live streams...</Text>
-          </View>
-        ) : (
-          <>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>
-                {liveMatches.length > 0 ? 'Live Now' : 'No Matches Live'}
-              </Text>
-              {liveMatches.length > 0 ? (
-                liveMatches.map(match => (
-                  <MatchCard 
-                    key={match.id} 
-                    match={mapToUICard(match)} 
-                    onPress={() => router.push(`/football/match/${match.id}` as any)} 
-                  />
-                ))
-              ) : (
-                <View style={styles.emptyCard}>
-                  <Ionicons name="football-outline" size={40} color={Colors.textMuted} />
-                  <Text style={styles.emptyText}>Check back later for live broadcasts</Text>
+              {upcomingMatches.length > 0 && (
+                <View style={[styles.section, { marginTop: scale(30) }]}>
+                  <Text style={[styles.sectionTitle, { fontSize: sFont(22) }]}>Upcoming Matches</Text>
+                  <View style={isDesktop ? styles.matchGrid : null}>
+                    {upcomingMatches.map(match => (
+                      <MatchCard 
+                        key={match.id} 
+                        match={mapToUICard(match)} 
+                        onPress={() => router.push(`/football/match/${match.id}` as any)} 
+                        style={isDesktop ? styles.gridMatchCard : null}
+                      />
+                    ))}
+                  </View>
                 </View>
               )}
+            </>
+          )}
+
+          <View style={[styles.promoCard, isDesktop && { alignSelf: 'center', width: 600 }]}>
+            <Ionicons name="notifications-outline" size={32} color={Colors.primary} />
+            <View style={styles.promoTextContainer}>
+              <Text style={[styles.promoTitle, { fontSize: sFont(16) }]}>Never miss a goal</Text>
+              <Text style={[styles.promoDesc, { fontSize: sFont(12) }]}>Enable notifications for your favorite teams and leagues.</Text>
             </View>
-
-            {upcomingMatches.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Upcoming Matches</Text>
-                {upcomingMatches.map(match => (
-                  <MatchCard 
-                    key={match.id} 
-                    match={mapToUICard(match)} 
-                    onPress={() => router.push(`/football/match/${match.id}` as any)} 
-                  />
-                ))}
-              </View>
-            )}
-          </>
-        )}
-
-        <View style={styles.promoCard}>
-          <Ionicons name="notifications-outline" size={32} color={Colors.primary} />
-          <View style={styles.promoTextContainer}>
-            <Text style={styles.promoTitle}>Never miss a goal</Text>
-            <Text style={styles.promoDesc}>Enable notifications for your favorite teams and leagues.</Text>
+            <Focusable style={styles.promoBtn}>
+              <Text style={[styles.promoBtnTxt, { fontSize: sFont(12) }]}>Enable</Text>
+            </Focusable>
           </View>
-          <TouchableOpacity style={styles.promoBtn}>
-            <Text style={styles.promoBtnTxt}>Enable</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
-
-const PT = Platform.OS === "android" ? RNStatusBar.currentHeight ?? 0 : 0;
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: Colors.bg,
-    paddingTop: PT,
   },
   header: {
     flexDirection: 'row',
@@ -253,7 +251,6 @@ const styles = StyleSheet.create({
   },
   brandName: {
     color: Colors.primary,
-    fontSize: 20,
     fontWeight: '900',
     letterSpacing: -0.5,
   },
@@ -267,7 +264,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.card,
     borderRadius: 16,
     paddingHorizontal: 15,
-    height: 50,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
   },
@@ -277,7 +273,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     color: Colors.text,
-    fontSize: 15,
     fontWeight: '500',
   },
   leaguesContainer: {
@@ -301,7 +296,6 @@ const styles = StyleSheet.create({
   },
   leagueBtnTxt: {
     color: Colors.textMuted,
-    fontSize: 14,
     fontWeight: '600',
   },
   leagueBtnTxtActive: {
@@ -309,20 +303,27 @@ const styles = StyleSheet.create({
   },
   headerActionBtn: {
     padding: 8,
-    backgroundColor: 'rgba(Colors.primary, 0.1)',
+    backgroundColor: 'rgba(209, 255, 0, 0.1)',
     borderRadius: 12,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 100, // Account for floating tab bar
   },
   section: {
     marginTop: 20,
   },
   sectionTitle: {
     color: Colors.text,
-    fontSize: 18,
     fontWeight: '800',
+    marginBottom: 15,
+  },
+  matchGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 15,
+  },
+  gridMatchCard: {
+    width: 300,
     marginBottom: 15,
   },
   loaderContainer: {
@@ -333,12 +334,10 @@ const styles = StyleSheet.create({
   },
   loaderText: {
     color: Colors.textMuted,
-    fontSize: 14,
     fontWeight: '600',
   },
   emptyText: {
     color: Colors.textMuted,
-    fontSize: 14,
     textAlign: 'center',
     paddingTop: 10,
   },
@@ -368,12 +367,10 @@ const styles = StyleSheet.create({
   },
   promoTitle: {
     color: Colors.text,
-    fontSize: 16,
     fontWeight: '800',
   },
   promoDesc: {
     color: Colors.textMuted,
-    fontSize: 12,
     lineHeight: 18,
     marginTop: 2,
   },
@@ -385,7 +382,12 @@ const styles = StyleSheet.create({
   },
   promoBtnTxt: {
     color: '#000',
-    fontSize: 12,
     fontWeight: '800',
   },
+  responsiveWrapper: {
+    flex: 1,
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 1200,
+  }
 });
