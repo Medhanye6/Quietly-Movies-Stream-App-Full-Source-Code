@@ -142,18 +142,42 @@ export default function HomeScreen() {
     (async () => {
       setLoading(true);
       try {
+        const fetchTrending = async () => {
+          try { return await getTrending("movie", "week"); }
+          catch (e) { console.error("Trending fetch error:", e); return []; }
+        };
+        const fetchPopular = async () => {
+          try { return await getPopular("movie"); }
+          catch (e) { console.error("Popular movies fetch error:", e); return []; }
+        };
+        const fetchTV = async () => {
+          try { return await getPopular("tv"); }
+          catch (e) { console.error("TV shows fetch error:", e); return []; }
+        };
+        const fetchAnime = async () => {
+          try { return await getAnime(); }
+          catch (e) { console.error("Anime fetch error:", e); return []; }
+        };
+        const fetchManga = async () => {
+          try { return await getTrendingManga(); }
+          catch (e) { console.error("Manga fetch error:", e); return []; }
+        };
+
         const [t, p, tv, a, m] = await Promise.all([
-          getTrending("movie", "week"), // Only trending movies
-          getPopular("movie"),
-          getPopular("tv"),
-          getAnime(),
-          getTrendingManga(),
+          fetchTrending(),
+          fetchPopular(),
+          fetchTV(),
+          fetchAnime(),
+          fetchManga(),
         ]);
+
         setTrending(t.filter((i) => i.backdrop_path && i.poster_path).slice(0, 10));
         setMovies(p.filter((i) => i.poster_path));
         setTVShows(tv.filter((i) => i.poster_path));
         setAnime(a.filter((i) => i.poster_path));
-        setManga(m);
+        setManga(m || []);
+      } catch (globalError) {
+        console.error("Critical home data fetch error:", globalError);
       } finally {
         setLoading(false);
       }

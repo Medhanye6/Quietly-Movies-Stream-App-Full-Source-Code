@@ -15,12 +15,18 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_TMDB_API_KEY": "e0f10c40fcd8a00ebd142a5ad577e01a"
       }
     },
     "production": {
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_TMDB_API_KEY": "e0f10c40fcd8a00ebd142a5ad577e01a"
       }
     }
   },
