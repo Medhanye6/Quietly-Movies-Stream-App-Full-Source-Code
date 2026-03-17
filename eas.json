@@ -17,7 +17,11 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_TMDB_API_KEY": "e0f10c40fcd8a00ebd142a5ad577e01a"
+        "EXPO_PUBLIC_TMDB_API_KEY": "e0f10c40fcd8a00ebd142a5ad577e01a",
+        "EXPO_PUBLIC_SPORTS_BASE_URL": "https://football-live-streaming-api.p.rapidapi.com",
+        "EXPO_PUBLIC_SPORTS_API_KEY": "5453dc5481msh26723c6964fb028p1a0a8ejsn7d7f0016b858",
+        "EXPO_PUBLIC_RAPID_API_HOST": "football-live-streaming-api.p.rapidapi.com",
+        "EXPO_PUBLIC_FIREBASE_RTDB_URL": "https://etfarmer-default-rtdb.firebaseio.com"
       }
     },
     "production": {
@@ -26,7 +30,11 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_TMDB_API_KEY": "e0f10c40fcd8a00ebd142a5ad577e01a"
+        "EXPO_PUBLIC_TMDB_API_KEY": "e0f10c40fcd8a00ebd142a5ad577e01a",
+        "EXPO_PUBLIC_SPORTS_BASE_URL": "https://football-live-streaming-api.p.rapidapi.com",
+        "EXPO_PUBLIC_SPORTS_API_KEY": "5453dc5481msh26723c6964fb028p1a0a8ejsn7d7f0016b858",
+        "EXPO_PUBLIC_RAPID_API_HOST": "football-live-streaming-api.p.rapidapi.com",
+        "EXPO_PUBLIC_FIREBASE_RTDB_URL": "https://etfarmer-default-rtdb.firebaseio.com"
       }
     }
   },
