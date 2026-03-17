@@ -40,20 +40,22 @@ function MediaCard({ item, onPress, focused }: { item: TMDBMovie; onPress: () =>
     <TouchableOpacity 
       style={[styles.card, focused ? styles.cardFocused : styles.cardUnfocused]} 
       onPress={onPress} 
-      activeOpacity={0.8}
+      activeOpacity={0.9}
     >
-      {!imgErr ? (
-        <Image
-          source={{ uri: getImageUrl(item.poster_path, "w780") }}
-          style={styles.cardImg}
-          resizeMode="cover"
-          onError={() => setImgErr(true)}
-        />
-      ) : (
-        <View style={[styles.cardImg, styles.cardImgFallback]}>
-          <Ionicons name="film-outline" size={48} color={Colors.textDim} />
-        </View>
-      )}
+      <View style={styles.cardFrame}>
+        {!imgErr ? (
+          <Image
+            source={{ uri: getImageUrl(item.poster_path, "w780") }}
+            style={styles.cardImg}
+            resizeMode="cover"
+            onError={() => setImgErr(true)}
+          />
+        ) : (
+          <View style={[styles.cardImg, styles.cardImgFallback]}>
+            <Ionicons name="film-outline" size={48} color={Colors.textDim} />
+          </View>
+        )}
+      </View>
     </TouchableOpacity>
   );
 }
@@ -74,17 +76,23 @@ function SectionRow({ title, data, onItemPress }: {
         data={data}
         keyExtractor={(i) => String(i.id)}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
+        contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
         renderItem={({ item }) => (
           <TouchableOpacity 
-            style={{ width: ITEM_W, height: ITEM_H, borderRadius: 10, overflow: 'hidden', backgroundColor: Colors.card }}
+            style={{ width: ITEM_W, gap: 8 }}
             onPress={() => onItemPress(item)}
+            activeOpacity={0.7}
           >
-            <Image 
-              source={{ uri: getImageUrl(item.poster_path, "w342") }} 
-              style={{ width: '100%', height: '100%' }}
-              resizeMode="cover"
-            />
+            <View style={{ width: ITEM_W, height: ITEM_H, borderRadius: 12, overflow: 'hidden', backgroundColor: Colors.card }}>
+              <Image 
+                source={{ uri: getImageUrl(item.poster_path, "w342") }} 
+                style={{ width: '100%', height: '100%' }}
+                resizeMode="cover"
+              />
+            </View>
+            <Text style={styles.itemTitle} numberOfLines={2}>
+              {item.title || item.name}
+            </Text>
           </TouchableOpacity>
         )}
       />
@@ -109,7 +117,7 @@ export default function HomeScreen() {
 
   const { t } = useTranslation();
 
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlatList<TMDBMovie>>(null);
   const timerRef = useRef<any>(null);
 
   const focusedItem = activeTab === "trending" ? trending[heroIdx] : movies[heroIdx];
@@ -365,11 +373,10 @@ export default function HomeScreen() {
         </View>
 
         {/* Extra Sections */}
-        <SectionRow title={t('movies')} data={movies.slice(0, 10)} onItemPress={navigateTo} />
         <SectionRow title={t('tvShows')} data={tvShows.slice(0, 10)} onItemPress={navigateTo} />
+        <SectionRow title={t('movies')} data={movies.slice(0, 10)} onItemPress={navigateTo} />
         <SectionRow title={t('anime')} data={anime.slice(0, 10)} onItemPress={navigateTo} />
 
-        {/* Manga Section */}
         {manga.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('manga')}</Text>
@@ -378,20 +385,26 @@ export default function HomeScreen() {
               data={manga}
               keyExtractor={(i) => `manga-${i.id}`}
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
               renderItem={({ item }) => {
                 const ITEM_W = SW * 0.32;
                 const ITEM_H = ITEM_W * 1.5;
                 return (
                   <TouchableOpacity 
-                    style={{ width: ITEM_W, height: ITEM_H, borderRadius: 10, overflow: 'hidden', backgroundColor: Colors.card }}
+                    style={{ width: ITEM_W, gap: 8 }}
                     onPress={() => navigateTo(item)}
+                    activeOpacity={0.7}
                   >
-                    <Image 
-                      source={{ uri: item.coverImage.large }} 
-                      style={{ width: '100%', height: '100%' }}
-                      resizeMode="cover"
-                    />
+                    <View style={{ width: ITEM_W, height: ITEM_H, borderRadius: 12, overflow: 'hidden', backgroundColor: Colors.card }}>
+                      <Image 
+                        source={{ uri: item.coverImage.large }} 
+                        style={{ width: '100%', height: '100%' }}
+                        resizeMode="cover"
+                      />
+                    </View>
+                    <Text style={styles.itemTitle} numberOfLines={2}>
+                      {item.title.english || item.title.romaji || item.title.native}
+                    </Text>
                   </TouchableOpacity>
                 );
               }}
@@ -399,7 +412,7 @@ export default function HomeScreen() {
           </View>
         )}
       </ScrollView>
-      </View>
+    </View>
 
       <Modal transparent visible={showCommunity} animationType="fade">
         <View style={styles.modalOverlay}>
@@ -452,13 +465,15 @@ const styles = StyleSheet.create({
   navLinks:    { flexDirection: "row", gap: 20, paddingHorizontal: 20, marginVertical: 8 },
   navLink:     { fontSize: 18, color: "rgba(255,255,255,0.6)", fontWeight: "500" },
   navLinkActive:{ color: "#fff", fontWeight: "800" },
+  itemTitle:   { color: "#fff", fontSize: 12, fontWeight: "600", textAlign: "left", lineHeight: 16, marginTop: 4 },
   avatar:      { width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.primary, alignItems: "center", justifyContent: "center" },
   avatarTxt:   { color: "#000", fontWeight: "700", fontSize: 14 },
   
   carouselContainer: { marginVertical: 20 },
-  card:        { width: CARD_W, height: CARD_H, borderRadius: 20, overflow: "hidden", backgroundColor: Colors.card },
-  cardFocused: { transform: [{ scale: 1 }] },
-  cardUnfocused: { transform: [{ scale: 0.9 }], opacity: 0.5 },
+  card:        { width: CARD_W, borderRadius: 24, overflow: "visible", backgroundColor: "transparent" },
+  cardFrame:   { width: CARD_W, height: CARD_H, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: Colors.card, elevation: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
+  cardFocused: { transform: [{ scale: 1 }], opacity: 1 },
+  cardUnfocused: { transform: [{ scale: 0.85 }], opacity: 0.5 },
   cardImg:     { width: "100%", height: "100%" },
   cardImgFallback: { alignItems: "center", justifyContent: "center" },
   

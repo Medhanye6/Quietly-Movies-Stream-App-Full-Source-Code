@@ -1,55 +1,74 @@
-# KiraStreams Mobile
+# Quietly Stream Mobile
 
-A free streaming app for movies, TV shows, and anime — built with React Native (Expo).
+Quietly Stream is a premium, all-in-one entertainment suite for Android, designed to provide a seamless streaming experience for movies, TV shows, anime, and manga. Optimized for high-speed performance on Ethiopian networks.
+
+![App Preview](https://quietlystream.pro.et/assets/hero-movies.png)
+
+## 🌟 Key Features
+
+### 🎬 Entertainment Hub
+- **Smart Hero Slider**: Dynamic, auto-cycling featured content with focal scaling for a premium look.
+- **Categorized Browsing**: Easily switch between Trending, Movies, TV Shows, and Anime.
+- **Detailed Metadata**: Comprehensive info including ratings, overviews, cast lists, and trailers (TMDB & AniList).
+- **Manga Reader**: Integrated high-quality manga explorer and reader (MangaDex).
+
+### 📺 Advanced Player
+- **Multiple Servers**: Choose from Kira, Prime, Flash, and Swift servers for the best streaming speed.
+- **Resume Playback**: Pick up exactly where you left off.
+- **Auto-Play & Auto-Next**: Continuous viewing experience for series and anime.
+
+### 👤 Personalized Experience
+- **Secure Authentication**: Encrypted login and account management.
+- **Global Watchlists**: Bookmark your favorite content across all categories.
+- **Watch History**: Detailed tracking of your viewed movies and series progress.
+
+### 🌍 Multi-Language Support
+- Full localized interface in **English**, **Spanish**, and **Arabic** (RTL support).
+
+## 🛠️ Tech Stack
+- **Framework**: React Native (Expo SDK 52)
+- **Navigation**: Expo Router (File-based routing)
+- **State & Storage**: React Context, AsyncStorage, SecureStore
+- **API Integrations**: TMDB (Movies/TV), AniList (Anime/Manga), MangaDex (Manga)
+- **Styling**: Vanilla CSS-in-JS with custom design tokens
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- npm or bun
+- Expo Go (for development)
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Medhanye6/Quietly-Movies-Stream-App-Full-Source-Code.git
+   cd Quietly-Movies-Stream-App-Full-Source-Code
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+3. Configure Environment:
+   Create a `.env` file in the root directory:
+   ```env
+   EXPO_PUBLIC_TMDB_API_KEY=your_tmdb_key_here
+   ```
+
+4. Start the development server:
+   ```bash
+   npx expo start
+   ```
+
+## 📱 Download the App
+Visit our official website to download the latest APK:
+[quietlystream.pro.et](https://quietlystream.pro.et)
+
+## 🤝 Community
+Join our [Telegram Community](https://t.me/QuietlyStreams) for updates, requests, and support.
 
 ---
 
-## Features
-
-### Browsing
-- **Hero Banner** — auto-cycling featured content with backdrop images, ratings, and a Watch Now button
-- **Category Tabs** — filter between Trending, Movies, TV Shows, and Anime on the home screen
-- **Content Sections** — horizontal scrollable rows for Popular Movies, Popular TV Shows, and Anime
-- **TMDB Integration** — all metadata (titles, posters, ratings, overviews) powered by The Movie Database API
-
-### Search
-- **Multi-search** — search movies and TV shows simultaneously with debounced live results
-- **Rich result cards** — shows poster, title, year, media type badge, rating, and overview
-
-- **TV Episode Browser** — season selector and horizontal episode list with thumbnails
-- **Auto-play & Auto-next** — enabled by default on supported servers
-- **Cast list** — actor profile photos, names, and character names
-- **Recommendations** — "You May Also Like" section below each title
-
-### My Lists
-- **Bookmarks** — save movies and shows to watch later, with one-tap removal
-- **Watch History** — automatically tracks everything you watch including season/episode for TV
-
-### Profile & Auth
-- **Account creation & login** — backed by kirastreamsv2.vercel.app (shared with the web app)
-- **Secure session storage** — JWT token stored in device SecureStore (encrypted)
-- **Admin badge** — displayed for admin accounts
-- **Clear watch history** — wipe all history with one tap
-- **Guest mode** — browse and watch without an account
-
-### Design
-- Dark theme throughout
-- Purple/blue gradient accent color scheme
-- Smooth loading states and fallback placeholders for missing images
-
----
-
-## Tech Stack
-
-- **React Native** (Expo SDK 52)
-- **Expo Router** — file-based navigation
-- **expo-secure-store** — encrypted token storage
-- **react-native-webview** — embedded video players
-- **TMDB API** — content metadata
----
-
-
-
----
-
-> KiraStreams does not host any files. All content is provided by third-party streaming sources.
+*Disclaimer: Quietly Stream does not host any files. All content is provided by non-affiliated third-party streaming sources.*

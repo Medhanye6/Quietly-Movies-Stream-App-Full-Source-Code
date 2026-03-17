@@ -42,7 +42,7 @@ export default function AboutScreen() {
 
         <TouchableOpacity 
           style={styles.visitBtn}
-          onPress={() => Linking.openURL('https://quietly-stream.vercel.app')}
+          onPress={() => Linking.openURL('https://quietlystream.pro.et')}
         >
           <Ionicons name="globe-outline" size={20} color="#000" />
           <Text style={styles.visitBtnTxt}>Visit Website</Text>
