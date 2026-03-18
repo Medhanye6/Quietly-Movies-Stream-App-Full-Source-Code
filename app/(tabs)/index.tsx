@@ -262,7 +262,7 @@ export default function HomeScreen() {
   const isDesktop = !isPhone;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.responsiveWrapper}>
         {/* Header */}
         {!isDesktop && (
@@ -303,7 +303,7 @@ export default function HomeScreen() {
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: isPhone ? 100 : 40 }}>
           {/* Hero Carousel */}
-          <View style={styles.carouselContainer}>
+          <View style={[styles.carouselContainer, { height: CARD_H + 20 }]}>
             <FlatList
               ref={flatListRef}
               horizontal
@@ -317,7 +317,7 @@ export default function HomeScreen() {
               onScroll={onScroll}
               scrollEventThrottle={16}
               renderItem={({ item, index }) => (
-                <View style={[index !== heroIdx && { transform: [{ scale: 0.85 }], opacity: 0.5 }]}>
+                <View style={[{ width: CARD_W, height: CARD_H }, index !== heroIdx && { transform: [{ scale: 0.85 }], opacity: 0.5 }]}>
                   <MediaCard
                     item={item}
                     onPress={() => navigateTo(item)}

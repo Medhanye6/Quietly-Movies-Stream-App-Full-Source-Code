@@ -78,7 +78,7 @@ export default function ProfileScreen() {
   const isDesktop = !isPhone;
 
   return (
-    <SafeAreaView style={styles.container} edges={isTV ? ['top', 'bottom', 'left', 'right'] : ['bottom']}>
+    <SafeAreaView style={styles.container} edges={isTV ? ['top', 'bottom', 'left', 'right'] : ['top', 'bottom']}>
       <View style={styles.responsiveWrapper}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
           {/* Header Section */}

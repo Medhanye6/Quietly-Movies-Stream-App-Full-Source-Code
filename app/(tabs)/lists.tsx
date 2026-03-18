@@ -112,7 +112,7 @@ export default function ListsScreen() {
   const isDesktop = !isPhone;
 
   return (
-    <SafeAreaView style={styles.safe} edges={isTV ? ['top', 'bottom', 'left', 'right'] : ['bottom']}>
+    <SafeAreaView style={styles.safe} edges={isTV ? ['top', 'bottom', 'left', 'right'] : ['top', 'bottom']}>
       <View style={[styles.header, { paddingTop: isTV ? 20 : 8 }]}>
         <Text style={[styles.heading, { fontSize: sFont(26) }]}>{t('myList')}</Text>
       </View>
