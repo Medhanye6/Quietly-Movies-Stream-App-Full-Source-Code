@@ -1,23 +1,34 @@
 import { Dimensions, Platform } from 'react-native';
 
-// Baseline dimensions (Small iPhone)
-const guidelineBaseWidth = 375;
-const guidelineBaseHeight = 812;
-
 /**
- * Scaled size based on screen width
+ * Categorical Scaling Utility
+ * --------------------------
+ * Prevents overscaling on large displays by using different
+ * baseline widths for different device categories.
  */
-export const scale = (size: number) => {
-  const { width } = Dimensions.get('window');
-  return (width / guidelineBaseWidth) * size;
+
+const getBaselines = (width: number) => {
+  if (width >= 1024) return { baseWidth: 1280, baseHeight: 720 }; // TV/Desktop
+  if (width >= 768)  return { baseWidth: 768,  baseHeight: 1024 }; // Tablet
+  return { baseWidth: 375, baseHeight: 812 }; // Phone
 };
 
 /**
- * Scaled size based on screen height
+ * Scaled size based on screen width and device category
+ */
+export const scale = (size: number) => {
+  const { width } = Dimensions.get('window');
+  const { baseWidth } = getBaselines(width);
+  return (width / baseWidth) * size;
+};
+
+/**
+ * Scaled size based on screen height and device category
  */
 export const verticalScale = (size: number) => {
-  const { height } = Dimensions.get('window');
-  return (height / guidelineBaseHeight) * size;
+  const { height, width } = Dimensions.get('window');
+  const { baseHeight } = getBaselines(width);
+  return (height / baseHeight) * size;
 };
 
 /**
@@ -26,13 +37,21 @@ export const verticalScale = (size: number) => {
 export const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 
 /**
- * Scaled font size with minimums
+ * Scaled font size with categorical minimums
  */
 export const sFont = (size: number) => {
+  const { width } = Dimensions.get('window');
   const newSize = scale(size);
-  if (Platform.isTV) {
-    return Math.max(newSize, 24);
+  
+  // High-def / TV / Desktop
+  if (width >= 1024 || (Platform.isTV && Platform.OS !== 'web')) {
+    return Math.max(newSize, 22);
   }
+  // Tablet
+  if (width >= 768) {
+    return Math.max(newSize, 18);
+  }
+  // Phone
   return Math.max(newSize, 14);
 };
 
