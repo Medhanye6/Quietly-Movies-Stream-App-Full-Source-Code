@@ -427,10 +427,13 @@ const styles = StyleSheet.create({
   navLinks:    { flexDirection: "row", gap: 20, paddingHorizontal: 20, marginVertical: 8 },
   navLink:     { fontSize: 18, color: "rgba(255,255,255,0.6)", fontWeight: "500" },
   navLinkActive:{ color: "#fff", fontWeight: "800" },
-  itemTitle:   { color: "#fff", fontSize: 12, fontWeight: "600", textAlign: "left", lineHeight: 16, marginTop: 4 },
-  avatar:      { width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.primary, alignItems: "center", justifyContent: "center" },
   avatarTxt:   { color: "#000", fontWeight: "700", fontSize: 14 },
   
+  carouselContainer: {
+    height: scale(420),
+    marginVertical: 10,
+  },
+
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',

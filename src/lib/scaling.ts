@@ -51,8 +51,13 @@ export const sFont = (size: number) => {
   if (width >= 768) {
     return Math.max(newSize, 18);
   }
-  // Phone
-  return Math.max(newSize, 14);
+  
+  // Phone: Only apply 14px floor for main text (size >= 12)
+  // For tiny captions, allow them to scale naturally
+  if (size >= 12) {
+    return Math.max(newSize, 14);
+  }
+  return newSize;
 };
 
 export const getDimensions = () => Dimensions.get('window');

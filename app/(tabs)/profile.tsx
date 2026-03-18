@@ -11,7 +11,7 @@ import { clearHistory, getBookmarks } from "@/lib/storage";
 import { Colors } from "@/lib/colors";
 import { useTranslation, LanguageCode } from "@/lib/i18n";
 import { useResponsive } from "@/hooks/useResponsive";
-import { scale, sFont } from "@/lib/scaling";
+import { scale, sFont, verticalScale } from "@/lib/scaling";
 import { Focusable } from "@/components/Focusable";
 
 function MenuItem({ icon, label, sublabel, onPress, danger }: {
@@ -82,12 +82,12 @@ export default function ProfileScreen() {
       <View style={styles.responsiveWrapper}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
           {/* Header Section */}
-          <View style={[styles.headerHero, isDesktop && { borderRadius: 30, marginTop: 20 }]}>
+          <View style={[styles.headerHero, isDesktop && { borderRadius: 30, marginTop: 20 }, { minHeight: verticalScale(280) }]}>
             <LinearGradient
               colors={[Colors.primary + "44", "transparent"]}
               style={styles.headerGradient}
             />
-            <View style={[styles.headerTop, { paddingTop: isTV ? 20 : 10 }]}>
+            <View style={[styles.headerTop, { paddingTop: isTV ? 40 : 12, paddingBottom: 10 }]}>
               <Text style={[styles.headerTitle, { fontSize: sFont(18) }]}>{t('profile')}</Text>
               <View style={{ flexDirection: 'row', gap: 12 }}>
                 <Focusable style={styles.settingsBtn} onPress={() => router.push("/search")}>
@@ -100,19 +100,19 @@ export default function ProfileScreen() {
               <View style={styles.avatarContainer}>
                 <LinearGradient
                   colors={[Colors.primary, Colors.accent]}
-                  style={[styles.avatarBorder, { width: scale(100), height: scale(100) }]}
+                  style={[styles.avatarBorder, { width: scale(90), height: scale(90) }]}
                 >
                   <View style={styles.avatarMain}>
-                    <Text style={[styles.avatarTxt, { fontSize: sFont(42) }]}>
+                    <Text style={[styles.avatarTxt, { fontSize: sFont(38) }]}>
                       {user ? (user.name || user.email)[0].toUpperCase() : "?"}
                     </Text>
                   </View>
                 </LinearGradient>
-                <View style={styles.onlineBadge} />
+                <View style={[styles.onlineBadge, { width: scale(18), height: scale(18) }]} />
               </View>
 
-              <Text style={[styles.userName, { fontSize: sFont(24) }]}>{user ? (user.name || "User") : "Guest User"}</Text>
-              <Text style={[styles.userEmail, { fontSize: sFont(13) }]}>{user ? user.email : "Sign in to sync your library"}</Text>
+              <Text style={[styles.userName, { fontSize: sFont(22) }]}>{user ? (user.name || "User") : "Guest User"}</Text>
+              <Text style={[styles.userEmail, { fontSize: sFont(12) }]}>{user ? user.email : "Sign in to sync your library"}</Text>
               
               {user?.isAdmin && (
                 <View style={styles.adminBadge}>
@@ -123,7 +123,7 @@ export default function ProfileScreen() {
             </View>
 
             {/* Stats Row */}
-            <View style={styles.statsRow}>
+            <View style={[styles.statsRow, { marginTop: verticalScale(20) }]}>
               <StatItem label="Watched" value="124" />
               <View style={styles.statDivider} />
               <StatItem label="Following" value={String(bookmarks.length)} />

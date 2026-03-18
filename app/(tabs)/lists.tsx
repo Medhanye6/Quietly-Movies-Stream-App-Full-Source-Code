@@ -31,17 +31,17 @@ function BookmarkCard({ item, onPress, onRemove, style }: {
           </View>
         )}
         <View style={styles.rowInfo}>
-          <Text style={[styles.rowTitle, { fontSize: sFont(14) }]} numberOfLines={2}>{item.title}</Text>
+          <Text style={[styles.rowTitle, { fontSize: sFont(15) }]} numberOfLines={2}>{item.title}</Text>
           <View style={styles.typePill}>
             <Text style={[styles.typeTxt, { fontSize: sFont(10) }]}>
               {(item.type === "movie" ? t('movies') : item.type === "tv" ? t('tvShows') : (item.type === "anime" ? t('anime') : t('manga'))).toUpperCase()}
             </Text>
           </View>
-          <Text style={[styles.dateTxt, { fontSize: sFont(11) }]}>{new Date(item.addedAt).toLocaleDateString()}</Text>
+          <Text style={[styles.dateTxt, { fontSize: sFont(12) }]}>{new Date(item.addedAt).toLocaleDateString()}</Text>
         </View>
       </View>
-      <Focusable style={styles.removeBtn} onPress={onRemove}>
-        <Ionicons name="trash-outline" size={19} color={Colors.error} />
+      <Focusable style={[styles.removeBtn, { padding: scale(8) }]} onPress={onRemove}>
+        <Ionicons name="trash-outline" size={18} color={Colors.error} />
       </Focusable>
     </Focusable>
   );
@@ -62,7 +62,7 @@ function HistoryCard({ item, onPress, style }: { item: WatchHistoryItem; onPress
           </View>
         )}
         <View style={styles.rowInfo}>
-          <Text style={[styles.rowTitle, { fontSize: sFont(14) }]} numberOfLines={2}>{item.title}</Text>
+          <Text style={[styles.rowTitle, { fontSize: sFont(15) }]} numberOfLines={2}>{item.title}</Text>
           <View style={styles.typePill}>
             <Text style={[styles.typeTxt, { fontSize: sFont(10) }]}>
               {(item.type === "movie" ? t('movies') : item.type === "tv" ? t('tvShows') : (item.type === "anime" ? t('anime') : t('manga'))).toUpperCase()}
@@ -71,7 +71,7 @@ function HistoryCard({ item, onPress, style }: { item: WatchHistoryItem; onPress
           {item.season && item.episode && (
             <Text style={[styles.epTxt, { fontSize: sFont(12) }]}>S{item.season} E{item.episode}</Text>
           )}
-          <Text style={[styles.dateTxt, { fontSize: sFont(11) }]}>{new Date(item.watchedAt).toLocaleDateString()}</Text>
+          <Text style={[styles.dateTxt, { fontSize: sFont(12) }]}>{new Date(item.watchedAt).toLocaleDateString()}</Text>
         </View>
       </View>
       <Ionicons name="chevron-forward" size={16} color={Colors.textDim} />
