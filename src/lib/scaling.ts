@@ -1,6 +1,4 @@
-import { Dimensions, PixelRatio, Platform } from 'react-native';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+import { Dimensions, Platform } from 'react-native';
 
 // Baseline dimensions (Small iPhone)
 const guidelineBaseWidth = 375;
@@ -9,12 +7,18 @@ const guidelineBaseHeight = 812;
 /**
  * Scaled size based on screen width
  */
-export const scale = (size: number) => (SCREEN_WIDTH / guidelineBaseWidth) * size;
+export const scale = (size: number) => {
+  const { width } = Dimensions.get('window');
+  return (width / guidelineBaseWidth) * size;
+};
 
 /**
  * Scaled size based on screen height
  */
-export const verticalScale = (size: number) => (SCREEN_HEIGHT / guidelineBaseHeight) * size;
+export const verticalScale = (size: number) => {
+  const { height } = Dimensions.get('window');
+  return (height / guidelineBaseHeight) * size;
+};
 
 /**
  * Moderate scaling for cases where full scaling is too much
@@ -32,4 +36,4 @@ export const sFont = (size: number) => {
   return Math.max(newSize, 14);
 };
 
-export { SCREEN_WIDTH, SCREEN_HEIGHT };
+export const getDimensions = () => Dimensions.get('window');

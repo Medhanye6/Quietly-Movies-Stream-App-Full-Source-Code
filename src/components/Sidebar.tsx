@@ -19,10 +19,10 @@ export const Sidebar = () => {
   const pathname = usePathname();
 
   return (
-    <View style={styles.sidebar}>
+    <View style={[styles.sidebar, { width: scale(240) }]}>
       <View style={styles.logoContainer}>
         <Ionicons name="play-circle" size={40} color={Colors.primary} />
-        <Text style={styles.logoText}>Quietly</Text>
+        <Text style={[styles.logoText, { fontSize: sFont(24) }]}>Quietly</Text>
       </View>
 
       <View style={styles.navContainer}>
@@ -42,7 +42,7 @@ export const Sidebar = () => {
                   size={28} 
                   color={isActive ? Colors.primary : Colors.textMuted} 
                 />
-                <Text style={[styles.navText, isActive && styles.navTextActive]}>
+                <Text style={[styles.navText, isActive && styles.navTextActive, { fontSize: sFont(18) }]}>
                   {item.name}
                 </Text>
               </View>

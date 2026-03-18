@@ -15,16 +15,23 @@ export const useResponsive = () => {
 
   const width = dimensions.width;
   
-  // Logic based on USER requirements:
-  // Layout Logic: width > 1024 (TV/Desktop) -> Sidebar
-  // 768 < width < 1024 (Tablet) -> Grid
-  // width < 768 (Phone) -> List + Bottom Tabs
+  /**
+   * Device Detection Logic:
+   * 1. If width < 768, it's ALWAYS a phone (Portrait) -> Bottom Tabs
+   * 2. If Platform.isTV is true AND width > 1024, it's a TV -> Sidebar
+   * 3. If width >= 768 and < 1024, it's a tablet -> Sidebar/Grid
+   * 4. If width >= 1024, it's a large screen (TV/Desktop) -> Sidebar
+   */
   
   let deviceType: DeviceType = 'phone';
-  if (width > 1024 || Platform.isTV) {
-    deviceType = 'tv';
+  
+  if (width >= 1024) {
+    deviceType = 'tv'; // Desktop/TV scale
   } else if (width >= 768) {
     deviceType = 'tablet';
+  } else if (Platform.isTV && width > 480) {
+    // Only allow TV mode on larger screens to avoid breaking mobile emulation
+    deviceType = 'tv';
   }
 
   return {
